@@ -1,0 +1,41 @@
+# V1 - G1 plasma
+# V2 - I1 plasma
+# V3 - I1 mother
+
+# RESULT:
+# > ip2im["coefficients"]
+# $coefficients
+# (Intercept)         V2m 
+#   4.3989617   0.0597339
+#
+# > ip2gp["coefficients"]
+# $coefficients
+# (Intercept)         V2m 
+#   1.1695494   0.7486871 
+
+
+cdata = read.table("scaterData")
+attach(cdata)
+
+# normalize the number of fragments in 1Mb bins to number of fragments in 1kb normalized by the "number of fragments per megabase"
+V1m = V1 / (sum(V1)/1000000) / 1000
+V2m = V2 / (sum(V2)/1000000) / 1000
+V3m = V3 / (sum(V3)/1000000) / 1000
+
+
+# IRLS fit a line to the FPKMs
+library(MASS)
+ip2im = rlm(formula = V3m ~ V2m)
+ip2gp = rlm(formula = V1m ~ V2m)
+
+
+# plot points and then the fitted lines
+plot(V2m, V3m, col = "blue")
+points(V2m, V1m, col = "red", pch = "+")
+
+abline(ip2im, col = "blue")
+abline(ip2gp, col = "red")
+
+# print the line coefficients
+ip2im["coefficients"]
+ip2gp["coefficients"]
